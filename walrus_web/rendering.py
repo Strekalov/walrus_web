@@ -18,11 +18,15 @@ def render_element_in_center(st_element):
         st.write(' ')
     
 def render_title():
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        st.write(' ')
-    with col2:
-        render_svg("assets/svg.svg")
-    with col3:
-        st.write(' ')
+    
     st.title("Подсчёт моржей на изображении!")
+    
+    
+def render_draw_select():
+    with open("assets/walrus_sidebar.svg", "r") as file:
+        svg = file.read()
+    st.sidebar.image(svg, width=128, use_column_width='always')
+    draw_variant = st.sidebar.radio("Выбери как выделить моржей:",
+                     ('Никак', 'Рамки', 'Точки'))
+    
+    return draw_variant
