@@ -1,4 +1,6 @@
 import streamlit as st
+from walrus_web.rendering import render_title, render_element_in_center
+from walrus_web.utils import bytes_to_numpy, draw_boxes
 import numpy as np
 import cv2
 import time
@@ -9,32 +11,8 @@ result_title = st.empty()
 
 def get_walrus_boxes(image):
     "заменить на реальную Йоло!"
-    return [{"box": [200, 200, 200, 200]}]
-
-
-def render_svg():
+    return [{"box": [200, 200, 200, 200]},{"box": [400, 600, 500, 500]}]
     
-    """Renders the given svg string."""
-    with open("svg.svg", "r") as file:
-        svg = file.read()
-    st.image(svg, width=128, use_column_width='always')
-    
-
-def render_title():
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        st.write(' ')
-    with col2:
-        render_svg()
-    with col3:
-        st.write(' ')
-    st.title("Подсчёт моржей на изображении!")
-
-
-def bytes_to_numpy(image: bytes):
-    file_bytes = np.asarray(bytearray(image.read()), dtype=np.uint8)
-    opencv_image = cv2.imdecode(file_bytes, 1)
-    return opencv_image
 
 
 def detect_object(image: np.ndarray):
@@ -44,12 +22,6 @@ def detect_object(image: np.ndarray):
     walrus_count = len(boxes)
     
     return boxes, walrus_count
-
-
-def draw_boxes(image: np.ndarray, box: list):
-    top_left_point, top_right_point = (box[0], box[1]), (box[0]+ box[2], box[1]+ box[3])
-    cv2.rectangle(image, top_left_point, top_right_point, (0, 0, 255), thickness=10)
-
 
 
 def count_walruses(uploaded_images: list):
@@ -70,8 +42,8 @@ def count_walruses(uploaded_images: list):
                     for box in boxes:
                         draw_boxes(image_with_boxes, box)
                     all_walruses_count += valrus_count
-                st.image(image_with_boxes, width=512 ,channels='BGR', caption=f"На изображении {valrus_count} моржей!")
-                st.write(f"На изображении {valrus_count} моржей!")
+                st.image(image_with_boxes,channels='BGR', caption=f"На изображении {valrus_count} моржей!")
+
             else:
                 st.error("С изображением что-то не так, проверьте и загрузите заново!")
             
@@ -95,7 +67,5 @@ def upload_image_ui():
     return uploaded_images
     
         
-            
-    
 if __name__ == '__main__':
     main()
