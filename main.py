@@ -14,24 +14,31 @@ import time
 import base64
 import os
 
-
+st.experimental_memo.clear()
 result_title = st.empty()
 
-detector = ObjectDetector(
-    "./walrus_yolo/models/yolov5x6_29.05.2022.onnx",
-    image_size=(64 * 81, 64 * 81),
-    device="gpu",
-)
+@st.experimental_singleton
+def get_detector():
 
+    detector = ObjectDetector(
+        "./walrus_yolo/models/yolov5x6_29.05.2022.onnx",
+        image_size=(64 * 81, 64 * 81),
+        device="gpu",
+    )
+    return detector
 
-# @st.cache(allow_output_mutation=True)
+detector = get_detector()
+
+@st.cache(allow_output_mutation=True)
+@st.experimental_memo
 def get_walrus_boxes(image: np.ndarray):
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     results = detector(image=image)
     return results
 
 
-# @st.cache(allow_output_mutation=True)
+@st.cache(allow_output_mutation=True)
+@st.experimental_memo
 def detect_object(image: np.ndarray):
     yolo_result = get_walrus_boxes(image)
     boxes = [el["box"] for el in yolo_result]
@@ -115,8 +122,27 @@ def count_walruses(uploaded_images: list):
         result_title = st.success(
             f"На загруженных изображениях найдено {all_walruses_count} моржей!"
         )
-        make_csv_report_count(all_walruses_data)
-        make_csv_report_coords(all_walruses_data)
+        with col1:
+            download_button1 = st.empty()
+            download_button2 = st.empty()
+            report_1 = make_csv_report_count(all_walruses_data)
+            report_2 = make_csv_report_coords(all_walruses_data)
+        
+        if report_1:
+            download_button1 = st.download_button(
+                    label="Скачать отчёт по количеству моржей в csv",
+                    data=report_1.getvalue(),
+                    file_name="count_report.csv",
+                    mime="text/csv",
+                )
+            download_button2 = st.download_button(
+                    label="Скачать отчёт по координатам моржей в zip",
+                    data=report_2.getvalue(),
+                    file_name="coords_report.zip",
+                )
+            st.stop()
+    st.experimental_memo.clear()  
+    
 
 
 render_title()
