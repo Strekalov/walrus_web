@@ -7,12 +7,15 @@ from walrus_yolo.utils import non_max_suppression, letterbox, scale_coords
 
 
 class ObjectDetector:
-    def __init__(self, model_path: str,
-                 image_size: Tuple[int, int] = (1280, 1280),
-                 device: str = 'gpu',
-                 device_id: int = 0,
-                 threads: int = 1,
-                 log_level: int = 3) -> None:
+    def __init__(
+        self,
+        model_path: str,
+        image_size: Tuple[int, int] = (1280, 1280),
+        device: str = "gpu",
+        device_id: int = 0,
+        threads: int = 1,
+        log_level: int = 3,
+    ) -> None:
         self._image_size = image_size
         self._conf_threshold = 0.5
         self._nms_threshold = 0.4
@@ -20,32 +23,32 @@ class ObjectDetector:
 
         ort_device = ort.get_device().lower()
         device = device.lower()
-        if device == 'cpu':
-            self._providers = ['CPUExecutionProvider']
+        if device == "cpu":
+            self._providers = ["CPUExecutionProvider"]
             self._provider_options = [{}]
-        elif device == 'gpu' and ort_device == 'gpu':
-            self._providers = ['CUDAExecutionProvider']
-            self._provider_options = [{'device_id': str(device_id)}]
+        elif device == "gpu" and ort_device == "gpu":
+            self._providers = ["CUDAExecutionProvider"]
+            self._provider_options = [{"device_id": str(device_id)}]
         else:
-            raise ValueError(
-                f'ONNXRuntime does not support \'{device}\' device')
+            raise ValueError(f"ONNXRuntime does not support '{device}' device")
         self._onnx_options = ort.SessionOptions()
         self._onnx_options.log_severity_level = log_level
         if threads > 0:
             self._onnx_options.inter_op_num_threads = threads
             self._onnx_options.intra_op_num_threads = threads
         else:
-            raise ValueError(f'Incorrect num of threads: {threads}')
+            raise ValueError(f"Incorrect num of threads: {threads}")
         self._yolo_model = ort.InferenceSession(
-            self._yolo_path, providers=self._providers,
+            self._yolo_path,
+            providers=self._providers,
             sess_options=self._onnx_options,
-            provider_options=self._provider_options
+            provider_options=self._provider_options,
         )
         self._input_name = self._yolo_model.get_inputs()[0].name
 
     def __call__(
-            self, image: np.ndarray
-    ) -> List[Dict['str', Union[List[int], float, str]]]:
+        self, image: np.ndarray
+    ) -> List[Dict["str", Union[List[int], float, str]]]:
 
         orig_shape = image.shape
         image_flip = image.copy()
@@ -142,8 +145,10 @@ class ObjectDetector:
         # output = output.reshape((1, -1, output.shape[2]))
 
         output = non_max_suppression(
-            output, conf_thres=self._conf_threshold,
-            iou_thres=self._nms_threshold, agnostic=False
+            output,
+            conf_thres=self._conf_threshold,
+            iou_thres=self._nms_threshold,
+            agnostic=False,
         )
 
         detections = output[0]
@@ -162,9 +167,13 @@ class ObjectDetector:
                 w = int(detection[2] - x)
                 h = int(detection[3] - y)
 
-                result.append({'class': class_id,
-                               'box': [x, y, w, h],
-                               'conf': round(confidence, 4)})
+                result.append(
+                    {
+                        "class": class_id,
+                        "box": [x, y, w, h],
+                        "conf": round(confidence, 4),
+                    }
+                )
 
         return result
 

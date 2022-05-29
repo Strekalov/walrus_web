@@ -7,6 +7,7 @@ from walrus_web.utils import (
     make_csv_report_coords,
     make_csv_report_count,
 )
+from walrus_yolo.model import ObjectDetector
 import numpy as np
 import cv2
 import time
@@ -15,10 +16,18 @@ import os
 
 result_title = st.empty()
 
+detector = ObjectDetector(
+    "./walrus_yolo/models/yolov5x6_29.05.2022.onnx",
+    image_size=(64 * 81, 64 * 81),
+    device="gpu",
+)
 
-def get_walrus_boxes(image):
-    "заменить на реальную Йоло!"
-    return [{"box": [200, 200, 200, 200]}, {"box": [400, 600, 500, 500]}]
+
+@st.cache
+def get_walrus_boxes(image: np.ndarray):
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    results = detector(image=image)
+    return results
 
 
 @st.cache

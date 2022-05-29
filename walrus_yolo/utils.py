@@ -2,8 +2,9 @@ import numpy as np
 import cv2
 
 
-def non_max_suppression(prediction, conf_thres=0.25, iou_thres=0.45,
-                        classes=None, agnostic=False, labels=()):
+def non_max_suppression(
+    prediction, conf_thres=0.25, iou_thres=0.45, classes=None, agnostic=False, labels=()
+):
     """Performs Non-Maximum Suppression (NMS) on inference results
 
     Returns:
@@ -47,13 +48,15 @@ def non_max_suppression(prediction, conf_thres=0.25, iou_thres=0.45,
         # Detections matrix nx6 (xyxy, conf, cls)
         if multi_label:
             i, j = (x[:, 5:] > conf_thres).nonzero()
-            x = np.concatenate((box[i], x[i, j + 5, None],
-                                np.array(j[:, None], dtype=np.float64)), 1)
+            x = np.concatenate(
+                (box[i], x[i, j + 5, None], np.array(j[:, None], dtype=np.float64)), 1
+            )
         else:  # best class only
             j = x[:, 5:].argmax(1, keepdims=True)
             conf = x[:, 5:].max(1, keepdims=True)
-            x = np.concatenate((box, conf, np.array(j, dtype=np.float)),
-                               1)[conf.reshape(-1) > conf_thres]
+            x = np.concatenate((box, conf, np.array(j, dtype=np.float)), 1)[
+                conf.reshape(-1) > conf_thres
+            ]
 
         # Filter by class
         if classes is not None:
@@ -73,7 +76,7 @@ def non_max_suppression(prediction, conf_thres=0.25, iou_thres=0.45,
         i = np.array(i)
         if i.shape[0] > max_det:  # limit detections
             i = i[:max_det]
-        if merge and (1 < n < 3E3):
+        if merge and (1 < n < 3e3):
             # update boxes as boxes(i,4) = weights(i,n) * boxes(n,4)
             iou = box_iou(boxes[i], boxes) > iou_thres  # iou matrix
             weights = iou * scores[None]  # box weights
@@ -108,8 +111,14 @@ def box_iou(box1, box2):
     area2 = box_area(box2.T)
 
     # inter(N,M) = (rb(N,M,2) - lt(N,M,2)).clamp(0).prod(2)
-    inter = (np.min(box1[:, None, 2:], box2[:, 2:]) -
-             np.max(box1[:, None, :2], box2[:, :2])).clip(0).prod(2)
+    inter = (
+        (
+            np.min(box1[:, None, 2:], box2[:, 2:])
+            - np.max(box1[:, None, :2], box2[:, :2])
+        )
+        .clip(0)
+        .prod(2)
+    )
     return inter / (area1[:, None] + area2 - inter)
 
 
@@ -125,10 +134,12 @@ def xywh2xyxy(x):
 def scale_coords(img1_shape, coords, img0_shape, ratio_pad=None):
     # Rescale coords (xyxy) from img1_shape to img0_shape
     if ratio_pad is None:  # calculate from img0_shape
-        gain = min(img1_shape[0] / img0_shape[0],
-                   img1_shape[1] / img0_shape[1])  # gain  = old / new
-        pad = (img1_shape[1] - img0_shape[1] * gain) / 2, \
-              (img1_shape[0] - img0_shape[0] * gain) / 2  # wh padding
+        gain = min(
+            img1_shape[0] / img0_shape[0], img1_shape[1] / img0_shape[1]
+        )  # gain  = old / new
+        pad = (img1_shape[1] - img0_shape[1] * gain) / 2, (
+            img1_shape[0] - img0_shape[0] * gain
+        ) / 2  # wh padding
     else:
         gain = ratio_pad[0][0]
         pad = ratio_pad[1]
@@ -140,8 +151,14 @@ def scale_coords(img1_shape, coords, img0_shape, ratio_pad=None):
     return coords
 
 
-def letterbox(img, new_shape=(640, 640), color=(114, 114, 114),
-              auto=True, scale_fill=False, scaleup=True):
+def letterbox(
+    img,
+    new_shape=(640, 640),
+    color=(114, 114, 114),
+    auto=True,
+    scale_fill=False,
+    scaleup=True,
+):
     """
     Resizes image with original height/width ratio and
     adding border to fit the right new shape
@@ -174,8 +191,9 @@ def letterbox(img, new_shape=(640, 640), color=(114, 114, 114),
         img = cv2.resize(img, new_unpad, interpolation=cv2.INTER_LINEAR)
     top, bottom = int(round(dh - 0.1)), int(round(dh + 0.1))
     left, right = int(round(dw - 0.1)), int(round(dw + 0.1))
-    img = cv2.copyMakeBorder(img, top, bottom, left, right,
-                             cv2.BORDER_CONSTANT, value=color)  # add border
+    img = cv2.copyMakeBorder(
+        img, top, bottom, left, right, cv2.BORDER_CONSTANT, value=color
+    )  # add border
     return img, ratio, (dw, dh)
 
 
