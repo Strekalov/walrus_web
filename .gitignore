@@ -1,0 +1,5 @@
+.vscode
+.idea
+*.onnx
+__pycache__/
+**/.DS_Store
