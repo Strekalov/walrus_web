@@ -41,14 +41,9 @@ def make_csv_report_count(data: dict):
     writer = csv.DictWriter(csv_buffer, fieldnames=fieldnames)
     writer.writeheader()
     for el in data:
-        writer.writerow({"filename": el["filename"], "walrus_count": len(el["boxes"])})
+        writer.writerow({"filename": el["filename"]+'.jpg', "walrus_count": len(el["boxes"])})
 
-    st.download_button(
-        label="Скачать отчёт по количеству моржей в изображениях",
-        data=csv_buffer.getvalue(),
-        file_name="count_report.csv",
-        mime="text/csv",
-    )
+    return csv_buffer
 
 
 def make_csv_report_coords(data):
@@ -67,8 +62,4 @@ def make_csv_report_coords(data):
     with zipfile.ZipFile(zip_buffer, "a", zipfile.ZIP_DEFLATED, False) as zip_file:
         for file_name, data in result:
             zip_file.writestr(file_name, data.getvalue())
-    st.download_button(
-        label="Скачать отчёт по координатам",
-        data=zip_buffer.getvalue(),
-        file_name="coords_report.zip",
-    )
+    return zip_buffer
