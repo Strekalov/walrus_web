@@ -22,10 +22,10 @@ def draw_boxes(image: np.ndarray, box: list, draw_variant: str):
     if draw_variant == "Рамки":
         top_left_point, top_right_point = (x, y), (x + w, y + h)
         cv2.rectangle(
-            image, top_left_point, top_right_point, (255, 0, 255), thickness=10
+            image, top_left_point, top_right_point, (75, 75, 255), thickness=10
         )
     elif draw_variant == "Точки":
-        cv2.circle(image, center_point, 20, (255, 0, 255), -1)
+        cv2.circle(image, center_point, 10, (75, 75, 255), -1)
 
 
 def bytes_to_numpy(image: bytes):
@@ -72,12 +72,3 @@ def make_csv_report_coords(data):
         data=zip_buffer.getvalue(),
         file_name="coords_report.zip",
     )
-    # with open("test.zip", "wb") as f:
-    #     f.write(zip_buffer.getvalue())
-
-    # with open('coords_report.csv', 'w', newline='') as csvfile:
-    #     fieldnames = ['file_name', 'walrus_count']
-    #     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-    #     writer.writeheader()
-    #     for el in data:
-    #         writer.writerow(el)

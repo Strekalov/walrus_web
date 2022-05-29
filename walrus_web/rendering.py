@@ -28,7 +28,7 @@ def render_draw_select():
         svg = file.read()
     st.sidebar.image(svg, width=128, use_column_width="always")
     draw_variant = st.sidebar.radio(
-        "Выбери как выделить моржей:", ("Никак", "Рамки", "Точки")
+        "Выбери как выделить моржей на изображении:", ("Точки", "Рамки", "Никак")
     )
 
     return draw_variant

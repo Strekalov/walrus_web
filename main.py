@@ -14,6 +14,7 @@ import time
 import base64
 import os
 
+
 result_title = st.empty()
 
 detector = ObjectDetector(
@@ -23,14 +24,14 @@ detector = ObjectDetector(
 )
 
 
-@st.cache
+# @st.cache(allow_output_mutation=True)
 def get_walrus_boxes(image: np.ndarray):
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     results = detector(image=image)
     return results
 
 
-@st.cache
+# @st.cache(allow_output_mutation=True)
 def detect_object(image: np.ndarray):
     yolo_result = get_walrus_boxes(image)
     boxes = [el["box"] for el in yolo_result]
